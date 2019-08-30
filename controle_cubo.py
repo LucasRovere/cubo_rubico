@@ -172,6 +172,13 @@ class controle:
 
         elif command[0] == "close":
             self.current_track = []
+        elif command[0] == "undo":
+            if len(self.last_moves) == 0:
+                self.message = "No moves to undo"
+                return
+                
+            move = self.last_moves.pop()
+            self.move_cubo_inverted(move)
         elif command[0] != "empty":
             self.message = "Unknown command"
 
