@@ -226,7 +226,7 @@ class cubo:
 
     def moveU(self, shift):
         if(len(shift) == 0):
-            self.faceUp = self.rotateFace2(self.faceUp, True)
+            self.faceUp = self.rotateFace(self.faceUp, True)
 
         positionsF = list(map(lambda x: x + self.size *
                               len(shift), range(self.size)))
@@ -249,7 +249,7 @@ class cubo:
 
     def moveU_(self, shift):
         if(len(shift) == 0):
-            self.faceUp = self.rotateFace2(self.faceUp, False)
+            self.faceUp = self.rotateFace(self.faceUp, False)
 
         positionsF = list(map(lambda x: x + self.size *
                               len(shift), range(self.size)))
@@ -520,13 +520,10 @@ class cubo:
     def c_pos(self, i, j):
         return self.size * i + j
 
-    def rotateFace2(self, face, invert):
+    def rotateFace(self, face, invert):
         for i in range(self.size*self.size):
             posi = int(i % self.size)
             posj = int(i / self.size)
-
-            next_posi = posi
-            next_posj = posj
 
             i0 = posi
             j0 = posj
@@ -538,7 +535,7 @@ class cubo:
             j3 = posj
 
             if posi == posj and posi < (self.size - 1)/2:
-                # cantos
+                print("# cantos")
                 i1 = self.size - i0 - 1
                 j1 = j0
                 i2 = i1
@@ -547,90 +544,63 @@ class cubo:
                 j3 = j2
             elif posi < posj and posi < self.size - posj - 1:
                 print("# arestas")
-                i1 = j0
+                i1 = self.size - j0 - 1
                 j1 = i0
                 i2 = self.size - j1 - 1
                 j2 = i1
                 i3 = self.size - j2 - 1
                 j3 = i2
                 
-
-            aux = face[self.c_pos(i0, j0)]
-            face[self.c_pos(i0, j0)] = face[self.c_pos(i1, j1)]
-            face[self.c_pos(i1, j1)] = face[self.c_pos(i2, j2)]
-            face[self.c_pos(i2, j2)] = face[self.c_pos(i3, j3)]
-            face[self.c_pos(i3, j3)] = aux
-
-            # elif posi < posj and posi < self.size - posj - 1:
-            #     # triangulo superior
-            #     next_posi = posj
-            #     next_posj = posi
-            # elif posi > posj and posi > self.size - posj - 1:
-            #     # triangulo inferior
-            #     next_posi = posj
-            #     next_posj = self.size - posi - 1
-            # elif posi < posj and posi > self.size - posj - 1:
-            #     # triangulo direito
-            #     next_posi = self.size - posj - 1
-            #     next_posj = posi
-            # elif posi > posj and posi < self.size - posj - 1:
-            #     # triangulo esquerdo
-            #     next_posi = self.size - posj - 1
-            #     next_posj = posi
-
-            print("===== " + str(posi) + "  " + str(posj))
-            print("===== " + str(next_posi) + "  " + str(next_posj))
-
             if invert:
-                print(invert)
-                print(str(face[self.size*posi + posj]) + " " + str(face[self.size*next_posi + next_posj]))
-                aux = face[self.size*posi + posj]
-                face[self.size*posi + posj] = face[self.size*next_posi + next_posj]
-                face[self.size*next_posi + next_posj] = aux
+                aux = face[self.c_pos(i0, j0)]
+                face[self.c_pos(i0, j0)] = face[self.c_pos(i1, j1)]
+                face[self.c_pos(i1, j1)] = face[self.c_pos(i2, j2)]
+                face[self.c_pos(i2, j2)] = face[self.c_pos(i3, j3)]
+                face[self.c_pos(i3, j3)] = aux
             else:
-                print(invert)
-                print(str(face[self.size*posi + posj]) + " " + str(face[self.size*next_posi + next_posj]))
-                aux = face[self.size*next_posi + next_posj]
-                face[self.size*next_posi + next_posj] = face[self.size*posi + posj]
-                face[self.size*posi + posj] = aux
+                aux = face[self.c_pos(i3, j3)]
+                face[self.c_pos(i3, j3)] = face[self.c_pos(i2, j2)]
+                face[self.c_pos(i2, j2)] = face[self.c_pos(i1, j1)]
+                face[self.c_pos(i1, j1)] = face[self.c_pos(i0, j0)]
+                face[self.c_pos(i0, j0)] = aux
 
         return face            
 
-    def rotateFace(self, face, invert):
-        if invert == False:
-            # rotaciona cantos
-            aux = face[0]
-            face[0] = face[self.size - 1]
-            face[self.size - 1] = face[self.size*self.size - 1]
-            face[self.size*self.size - 1] = face[self.size*self.size - self.size]
-            face[self.size*self.size - self.size] = aux
+    # def rotateFace(self, face, invert):
+    #     if invert == False:
+    #         # rotaciona cantos
+    #         aux = face[0]
+    #         face[0] = face[self.size - 1]
+    #         face[self.size - 1] = face[self.size*self.size - 1]
+    #         face[self.size*self.size - 1] = face[self.size*self.size - self.size]
+    #         face[self.size*self.size - self.size] = aux
 
-            # rotaciona arestas
-            for i in range(self.size - 2):
-                j = (self.size - 3) - i  # oposto
-                aux = face[i + 1]
-                face[i + 1] = face[(i + 2) * (self.size) - 1]
-                face[(i + 2) * (self.size) -
-                     1] = face[self.size*self.size - 2 - j]
-                face[self.size*self.size - 2 - j] = face[self.size * (j + 1)]
-                face[self.size * (j + 1)] = aux
-        else:
-            aux = face[0]
-            face[0] = face[self.size*self.size - self.size]
-            face[self.size*self.size - self.size] = face[self.size*self.size - 1]
-            face[self.size*self.size - 1] = face[self.size - 1]
-            face[self.size - 1] = aux
+    #         # rotaciona arestas
+    #         for i in range(self.size - 2):
+    #             j = (self.size - 3) - i  # oposto
+    #             aux = face[i + 1]
+    #             face[i + 1] = face[(i + 2) * (self.size) - 1]
+    #             face[(i + 2) * (self.size) -
+    #                  1] = face[self.size*self.size - 2 - j]
+    #             face[self.size*self.size - 2 - j] = face[self.size * (j + 1)]
+    #             face[self.size * (j + 1)] = aux
+    #     else:
+    #         aux = face[0]
+    #         face[0] = face[self.size*self.size - self.size]
+    #         face[self.size*self.size - self.size] = face[self.size*self.size - 1]
+    #         face[self.size*self.size - 1] = face[self.size - 1]
+    #         face[self.size - 1] = aux
 
-            for i in range(self.size - 2):
-                aux = face[i + 1]
-                face[i + 1] = face[self.size * (i + 1)]
-                face[self.size * (i + 1)] = face[self.size*self.size - 2 - i]
-                face[self.size*self.size - 2 -
-                     i] = face[(i + 2) * (self.size) - 1]
-                # face[(i + 2) * (self.size - 1) + 1] = aux
-                face[(i + 2) * (self.size) - 1] = aux
+    #         for i in range(self.size - 2):
+    #             aux = face[i + 1]
+    #             face[i + 1] = face[self.size * (i + 1)]
+    #             face[self.size * (i + 1)] = face[self.size*self.size - 2 - i]
+    #             face[self.size*self.size - 2 -
+    #                  i] = face[(i + 2) * (self.size) - 1]
+    #             # face[(i + 2) * (self.size - 1) + 1] = aux
+    #             face[(i + 2) * (self.size) - 1] = aux
 
-        return face
+    #     return face
 
     def rotateSides(self, faces, face_positions):
         for i in range(self.size):
