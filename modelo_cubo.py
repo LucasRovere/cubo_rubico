@@ -1,95 +1,5 @@
 
-
-def main():
-    print_faces = True
-    current_track = []
-    track_pos = 0
-    c = cubo(3)
-
-    while True:
-        if print_faces:
-            print("")
-            c.printFaces()
-            print("")
-
-        if len(current_track) > 0:
-            track_text = '    '
-            for pos in current_track[0:track_pos]:
-                track_text += pos + ' '
-
-            track_text += '\033[0;30;47m' + \
-                current_track[track_pos] + '\033[0;37;40m '
-
-            for pos in current_track[track_pos + 1:]:
-                track_text += pos + ' '
-
-            print(track_text)
-
-            text = input()
-
-            if text == 'q':
-                current_track = []
-                text = ''
-            elif text == 'r':
-                text = ''
-                if track_pos > 0:
-                    track_pos -= 1
-                    if len(current_track[track_pos]) == 2:
-                        text = current_track[track_pos][0]
-                    else:
-                        text = current_track[track_pos] + "'"
-            else:
-                text = ''
-                if track_pos < len(current_track) - 1:
-                    text = current_track[track_pos]
-                    track_pos += 1
-
-        else:
-            text = input()
-
-        if len(text) == 0:
-            print()
-        elif text[0:7] == "restart":
-            c.restart(text[8:])
-        elif text[0:5] == "track":
-            c.track(text[6:])
-            print(c.tracks)
-        elif text[0:3] == "run":
-            current_track = c.run(text[4:])
-            current_track.append(' ')
-            track_pos = 0
-
-        elif text[0:2] == "u'":
-            c.moveU_(text[2:])
-        elif text[0] == "u":
-            c.moveU(text[1:])
-
-        elif text[0:2] == "d'":
-            c.moveD_(text[2:])
-        elif text[0] == "d":
-            c.moveD(text[1:])
-
-        elif text[0:2] == "f'":
-            c.moveF_(text[2:])
-        elif text[0] == "f":
-            c.moveF(text[1:])
-
-        elif text[0:2] == "b'":
-            c.moveB_(text[2:])
-        elif text[0] == "b":
-            c.moveB(text[1:])
-
-        elif text[0:2] == "r'":
-            c.moveR_(text[2:])
-        elif text[0] == "r":
-            c.moveR(text[1:])
-
-        elif text[0:2] == "l'":
-            c.moveL_(text[2:])
-        elif text[0] == "l":
-            c.moveL(text[1:])
-
-class cubo:
+class modelo_cubo:
     def __init__(self, size):
         self.size = size
 
@@ -111,7 +21,7 @@ class cubo:
             self.faceRight.append('\033[1;31;40mr\033[0;37;40m')
             self.faceLeft.append('\033[1;35;40mo\033[0;37;40m')
 
-    def restart(self, size):
+    def restart(self, size, debug):
         self.size = int(size)
 
         self.faceUp = []
@@ -124,20 +34,20 @@ class cubo:
         self.tracking = []
 
         for i in range(self.size*self.size):
-            self.faceUp.append('\033[1;33;40my\033[0;37;40m')
-            self.faceDown.append('\033[1;37;40mw\033[0;37;40m')
-            self.faceFront.append('\033[1;34;40mb\033[0;37;40m')
-            self.faceBack.append('\033[1;32;40mg\033[0;37;40m')
-            self.faceRight.append('\033[1;31;40mr\033[0;37;40m')
-            self.faceLeft.append('\033[1;35;40mo\033[0;37;40m')
-
-            # Números para debug
-            # self.faceUp.append('\033[1;33;40m' + str(i) + '\033[0;37;40m')
-            # self.faceDown.append('\033[1;37;40m' + str(i) + '\033[0;37;40m')
-            # self.faceFront.append('\033[1;34;40m' + str(i) + '\033[0;37;40m')
-            # self.faceBack.append('\033[1;32;40m' + str(i) + '\033[0;37;40m')
-            # self.faceRight.append('\033[1;31;40m' + str(i) + '\033[0;37;40m')
-            # self.faceLeft.append('\033[1;35;40m' + str(i) + '\033[0;37;40m')
+            if not debug:
+                self.faceUp.append('\033[1;33;40my\033[0;37;40m')
+                self.faceDown.append('\033[1;37;40mw\033[0;37;40m')
+                self.faceFront.append('\033[1;34;40mb\033[0;37;40m')
+                self.faceBack.append('\033[1;32;40mg\033[0;37;40m')
+                self.faceRight.append('\033[1;31;40mr\033[0;37;40m')
+                self.faceLeft.append('\033[1;35;40mo\033[0;37;40m')
+            else:
+                self.faceUp.append('\033[1;33;40m' + str(i) + '\033[0;37;40m')
+                self.faceDown.append('\033[1;37;40m' + str(i) + '\033[0;37;40m')
+                self.faceFront.append('\033[1;34;40m' + str(i) + '\033[0;37;40m')
+                self.faceBack.append('\033[1;32;40m' + str(i) + '\033[0;37;40m')
+                self.faceRight.append('\033[1;31;40m' + str(i) + '\033[0;37;40m')
+                self.faceLeft.append('\033[1;35;40m' + str(i) + '\033[0;37;40m')
 
     def run(self, name):
         if(self.tracks[name]):
@@ -225,17 +135,17 @@ class cubo:
               lines[0:self.size*2 + 1] + spaces[0:4*self.size + 2])
 
     def moveU(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceUp = self.rotateFace(self.faceUp, True)
 
         positionsF = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
         positionsR = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
         positionsB = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
         positionsL = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
 
         faces = self.rotateSides([self.faceFront, self.faceRight, self.faceBack, self.faceLeft],
                                  [positionsF, positionsR, positionsB, positionsL])
@@ -245,20 +155,20 @@ class cubo:
         self.faceBack = faces[2]
         self.faceLeft = faces[3]
 
-        self.tracking.append('u' + shift)
+        self.tracking.append('u' + ' ' + str(shift))
 
     def moveU_(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceUp = self.rotateFace(self.faceUp, False)
 
         positionsF = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
         positionsR = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
         positionsB = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
         positionsL = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
 
         faces = self.rotateSides([self.faceFront, self.faceLeft, self.faceBack, self.faceRight],
                                  [positionsF, positionsL, positionsB, positionsR])
@@ -267,20 +177,20 @@ class cubo:
         self.faceBack = faces[2]
         self.faceRight = faces[3]
 
-        self.tracking.append("u'" + shift)
+        self.tracking.append("u'" + ' ' + str(shift))
 
     def moveD(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceDown = self.rotateFace(self.faceDown, False)
 
         positionsF = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsR = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsB = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsL = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
 
         faces = self.rotateSides([self.faceFront, self.faceRight, self.faceBack, self.faceLeft],
                                  [positionsF, positionsR, positionsB, positionsL])
@@ -289,20 +199,20 @@ class cubo:
         self.faceBack = faces[2]
         self.faceLeft = faces[3]
 
-        self.tracking.append('d' + shift)
+        self.tracking.append('d' + ' ' + str(shift))
 
     def moveD_(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceDown = self.rotateFace(self.faceDown, True)
 
         positionsF = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsR = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsB = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsL = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
 
         faces = self.rotateSides([self.faceFront, self.faceLeft, self.faceBack, self.faceRight],
                                  [positionsF, positionsL, positionsB, positionsR])
@@ -311,22 +221,22 @@ class cubo:
         self.faceBack = faces[2]
         self.faceRight = faces[3]
 
-        self.tracking.append("d'" + shift)
+        self.tracking.append("d'" + ' ' + str(shift))
 
     def moveF(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceFront = self.rotateFace(self.faceFront, False)
 
         positionsU = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsR = []
         positionsL = []
         positionsD = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
 
         for i in range(self.size):
-            positionsL.append((i+1)*self.size - 1 - len(shift))
-            positionsR.append(i*self.size + len(shift))
+            positionsL.append((i+1)*self.size - 1 - shift)
+            positionsR.append(i*self.size + shift)
 
         faces = self.rotateSidesInverting([self.faceUp, self.faceRight, self.faceDown, self.faceLeft],
                                           [positionsU, positionsR, positionsD, positionsL], [1, 3])
@@ -335,22 +245,22 @@ class cubo:
         self.faceDown = faces[2]
         self.faceLeft = faces[3]
 
-        self.tracking.append('f' + shift)
+        self.tracking.append('f' + ' ' + str(shift))
 
     def moveF_(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceFront = self.rotateFace(self.faceFront, True)
 
         positionsU = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size * len(shift), range(self.size)))
+                              (self.size - 1) - self.size * shift, range(self.size)))
         positionsR = []
         positionsL = []
         positionsD = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
 
         for i in range(self.size):
-            positionsL.append((i+1)*self.size - 1 - len(shift))
-            positionsR.append(i*self.size + len(shift))
+            positionsL.append((i+1)*self.size - 1 - shift)
+            positionsR.append(i*self.size + shift)
 
         faces = self.rotateSidesInverting([self.faceUp, self.faceLeft, self.faceDown, self.faceRight],
                                           [positionsU, positionsL, positionsD, positionsR], [0, 2])
@@ -359,24 +269,24 @@ class cubo:
         self.faceDown = faces[2]
         self.faceRight = faces[3]
 
-        self.tracking.append("f'" + shift)
+        self.tracking.append("f'" + ' ' + str(shift))
 
     def moveB(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceBack = self.rotateFace(self.faceBack, False)
 
         positionsD = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size*len(shift), range(self.size)))
+                              (self.size - 1) - self.size*shift, range(self.size)))
         positionsR = []
         positionsL = []
         positionsU = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
 
         positionsU.reverse()
 
         for i in range(self.size):
-            positionsR.append((i+1)*self.size - 1 - len(shift))
-            positionsL.append(i*self.size + len(shift))
+            positionsR.append((i+1)*self.size - 1 - shift)
+            positionsL.append(i*self.size + shift)
 
         faces = self.rotateSidesInverting([self.faceUp, self.faceLeft, self.faceDown, self.faceRight],
                                           [positionsU, positionsL, positionsD, positionsR], [2, 3])
@@ -385,24 +295,24 @@ class cubo:
         self.faceDown = faces[2]
         self.faceRight = faces[3]
 
-        self.tracking.append("b" + shift)
+        self.tracking.append("b" + ' ' + str(shift))
 
     def moveB_(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceBack = self.rotateFace(self.faceBack, True)
 
         positionsD = list(map(lambda x: x + self.size *
-                              (self.size - 1) - self.size*len(shift), range(self.size)))
+                              (self.size - 1) - self.size*shift, range(self.size)))
         positionsR = []
         positionsL = []
         positionsU = list(map(lambda x: x + self.size *
-                              len(shift), range(self.size)))
+                              shift, range(self.size)))
 
         positionsU.reverse()
 
         for i in range(self.size):
-            positionsR.append((i+1)*self.size - 1 - len(shift))
-            positionsL.append(i*self.size + len(shift))
+            positionsR.append((i+1)*self.size - 1 - shift)
+            positionsL.append(i*self.size + shift)
 
         faces = self.rotateSidesInverting([self.faceUp, self.faceRight, self.faceDown, self.faceLeft],
                                           [positionsU, positionsR, positionsD, positionsL], [0, 1])
@@ -411,10 +321,10 @@ class cubo:
         self.faceDown = faces[2]
         self.faceLeft = faces[3]
 
-        self.tracking.append("b'" + shift)
+        self.tracking.append("b'" + ' ' + str(shift))
 
     def moveR(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceRight = self.rotateFace(self.faceRight, True)
 
         positionsU = []
@@ -423,10 +333,10 @@ class cubo:
         positionsB = []
 
         for i in range(self.size):
-            positionsU.append((i+1)*self.size - 1 - len(shift))
-            positionsF.append((i+1)*self.size - 1 - len(shift))
-            positionsD.append((i+1)*self.size - 1 - len(shift))
-            positionsB.append(i*self.size + len(shift))
+            positionsU.append((i+1)*self.size - 1 - shift)
+            positionsF.append((i+1)*self.size - 1 - shift)
+            positionsD.append((i+1)*self.size - 1 - shift)
+            positionsB.append(i*self.size + shift)
 
         positionsB.reverse()
 
@@ -437,10 +347,10 @@ class cubo:
         self.faceDown = faces[2]
         self.faceBack = faces[3]
 
-        self.tracking.append("r" + shift)
+        self.tracking.append("r" + ' ' + str(shift))
 
     def moveR_(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceRight = self.rotateFace(self.faceRight, False)
 
         positionsU = []
@@ -449,10 +359,10 @@ class cubo:
         positionsB = []
 
         for i in range(self.size):
-            positionsU.append((i+1)*self.size - 1 - len(shift))
-            positionsF.append((i+1)*self.size - 1 - len(shift))
-            positionsD.append((i+1)*self.size - 1 - len(shift))
-            positionsB.append(i*self.size + len(shift))
+            positionsU.append((i+1)*self.size - 1 - shift)
+            positionsF.append((i+1)*self.size - 1 - shift)
+            positionsD.append((i+1)*self.size - 1 - shift)
+            positionsB.append(i*self.size + shift)
 
         positionsB.reverse()
 
@@ -463,10 +373,10 @@ class cubo:
         self.faceDown = faces[2]
         self.faceFront = faces[3]
 
-        self.tracking.append("r'" + shift)
+        self.tracking.append("r'" + ' ' + str(shift))
 
     def moveL(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceLeft = self.rotateFace(self.faceLeft, False)
 
         positionsU = []
@@ -475,10 +385,10 @@ class cubo:
         positionsB = []
 
         for i in range(self.size):
-            positionsU.append(i*self.size + len(shift))
-            positionsF.append(i*self.size + len(shift))
-            positionsD.append(i*self.size + len(shift))
-            positionsB.append((i+1)*self.size - 1 - len(shift))
+            positionsU.append(i*self.size + shift)
+            positionsF.append(i*self.size + shift)
+            positionsD.append(i*self.size + shift)
+            positionsB.append((i+1)*self.size - 1 - shift)
 
         positionsB.reverse()
 
@@ -489,10 +399,10 @@ class cubo:
         self.faceDown = faces[2]
         self.faceBack = faces[3]
 
-        self.tracking.append("l" + shift)
+        self.tracking.append("l" + ' ' + str(shift))
 
     def moveL_(self, shift):
-        if(len(shift) == 0):
+        if(shift == 0):
             self.faceLeft = self.rotateFace(self.faceLeft, True)
 
         positionsU = []
@@ -501,10 +411,10 @@ class cubo:
         positionsB = []
 
         for i in range(self.size):
-            positionsU.append(i*self.size + len(shift))
-            positionsF.append(i*self.size + len(shift))
-            positionsD.append(i*self.size + len(shift))
-            positionsB.append((i+1)*self.size - 1 - len(shift))
+            positionsU.append(i*self.size + shift)
+            positionsF.append(i*self.size + shift)
+            positionsD.append(i*self.size + shift)
+            positionsB.append((i+1)*self.size - 1 - shift)
 
         positionsB.reverse()
 
@@ -515,7 +425,7 @@ class cubo:
         self.faceDown = faces[2]
         self.faceFront = faces[3]
 
-        self.tracking.append("l'" + shift)
+        self.tracking.append("l'" + ' ' + str(shift))
 
     def c_pos(self, i, j):
         return self.size * i + j
