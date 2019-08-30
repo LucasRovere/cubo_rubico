@@ -3,9 +3,6 @@ class modelo_cubo:
     def __init__(self, size):
         self.size = size
 
-        self.tracking = []
-        self.tracks = {}
-
         self.faceUp = []
         self.faceDown = []
         self.faceFront = []
@@ -21,6 +18,14 @@ class modelo_cubo:
             self.faceRight.append('\033[1;31;40mr\033[0;37;40m')
             self.faceLeft.append('\033[1;35;40mo\033[0;37;40m')
 
+    def setState(self, state):
+        self.faceUp = state[0]
+        self.faceDown = state[1]
+        self.faceFront = state[2]
+        self.faceBack = state[3]
+        self.faceRight = state[4]
+        self.faceLeft = state[5]
+
     def restart(self, size, debug):
         self.size = int(size)
 
@@ -30,8 +35,6 @@ class modelo_cubo:
         self.faceBack = []
         self.faceRight = []
         self.faceLeft = []
-
-        self.tracking = []
 
         for i in range(self.size*self.size):
             if not debug:
@@ -48,20 +51,6 @@ class modelo_cubo:
                 self.faceBack.append('\033[1;32;40m' + str(i) + '\033[0;37;40m')
                 self.faceRight.append('\033[1;31;40m' + str(i) + '\033[0;37;40m')
                 self.faceLeft.append('\033[1;35;40m' + str(i) + '\033[0;37;40m')
-
-    def run(self, name):
-        if(self.tracks[name]):
-            return self.tracks[name]
-
-        return []
-
-    def track(self, name):
-        print(self.tracking)
-
-        if(name != ''):
-            self.tracks[name] = self.tracking
-
-        self.tracking = []
 
     def printFaces(self):
         spaces = '                                           '
@@ -155,8 +144,6 @@ class modelo_cubo:
         self.faceBack = faces[2]
         self.faceLeft = faces[3]
 
-        self.tracking.append('u' + ' ' + str(shift))
-
     def moveU_(self, shift):
         if(shift == 0):
             self.faceUp = self.rotateFace(self.faceUp, False)
@@ -176,8 +163,6 @@ class modelo_cubo:
         self.faceLeft = faces[1]
         self.faceBack = faces[2]
         self.faceRight = faces[3]
-
-        self.tracking.append("u'" + ' ' + str(shift))
 
     def moveD(self, shift):
         if(shift == 0):
@@ -199,8 +184,6 @@ class modelo_cubo:
         self.faceBack = faces[2]
         self.faceLeft = faces[3]
 
-        self.tracking.append('d' + ' ' + str(shift))
-
     def moveD_(self, shift):
         if(shift == 0):
             self.faceDown = self.rotateFace(self.faceDown, True)
@@ -221,8 +204,6 @@ class modelo_cubo:
         self.faceBack = faces[2]
         self.faceRight = faces[3]
 
-        self.tracking.append("d'" + ' ' + str(shift))
-
     def moveF(self, shift):
         if(shift == 0):
             self.faceFront = self.rotateFace(self.faceFront, False)
@@ -238,14 +219,12 @@ class modelo_cubo:
             positionsL.append((i+1)*self.size - 1 - shift)
             positionsR.append(i*self.size + shift)
 
-        faces = self.rotateSidesInverting([self.faceUp, self.faceRight, self.faceDown, self.faceLeft],
+        faces = self.rotateSides([self.faceUp, self.faceRight, self.faceDown, self.faceLeft],
                                           [positionsU, positionsR, positionsD, positionsL], [1, 3])
         self.faceUp = faces[0]
         self.faceRight = faces[1]
         self.faceDown = faces[2]
         self.faceLeft = faces[3]
-
-        self.tracking.append('f' + ' ' + str(shift))
 
     def moveF_(self, shift):
         if(shift == 0):
@@ -262,14 +241,12 @@ class modelo_cubo:
             positionsL.append((i+1)*self.size - 1 - shift)
             positionsR.append(i*self.size + shift)
 
-        faces = self.rotateSidesInverting([self.faceUp, self.faceLeft, self.faceDown, self.faceRight],
+        faces = self.rotateSides([self.faceUp, self.faceLeft, self.faceDown, self.faceRight],
                                           [positionsU, positionsL, positionsD, positionsR], [0, 2])
         self.faceUp = faces[0]
         self.faceLeft = faces[1]
         self.faceDown = faces[2]
         self.faceRight = faces[3]
-
-        self.tracking.append("f'" + ' ' + str(shift))
 
     def moveB(self, shift):
         if(shift == 0):
@@ -288,14 +265,12 @@ class modelo_cubo:
             positionsR.append((i+1)*self.size - 1 - shift)
             positionsL.append(i*self.size + shift)
 
-        faces = self.rotateSidesInverting([self.faceUp, self.faceLeft, self.faceDown, self.faceRight],
+        faces = self.rotateSides([self.faceUp, self.faceLeft, self.faceDown, self.faceRight],
                                           [positionsU, positionsL, positionsD, positionsR], [2, 3])
         self.faceUp = faces[0]
         self.faceLeft = faces[1]
         self.faceDown = faces[2]
         self.faceRight = faces[3]
-
-        self.tracking.append("b" + ' ' + str(shift))
 
     def moveB_(self, shift):
         if(shift == 0):
@@ -314,14 +289,12 @@ class modelo_cubo:
             positionsR.append((i+1)*self.size - 1 - shift)
             positionsL.append(i*self.size + shift)
 
-        faces = self.rotateSidesInverting([self.faceUp, self.faceRight, self.faceDown, self.faceLeft],
+        faces = self.rotateSides([self.faceUp, self.faceRight, self.faceDown, self.faceLeft],
                                           [positionsU, positionsR, positionsD, positionsL], [0, 1])
         self.faceUp = faces[0]
         self.faceRight = faces[1]
         self.faceDown = faces[2]
         self.faceLeft = faces[3]
-
-        self.tracking.append("b'" + ' ' + str(shift))
 
     def moveR(self, shift):
         if(shift == 0):
@@ -347,8 +320,6 @@ class modelo_cubo:
         self.faceDown = faces[2]
         self.faceBack = faces[3]
 
-        self.tracking.append("r" + ' ' + str(shift))
-
     def moveR_(self, shift):
         if(shift == 0):
             self.faceRight = self.rotateFace(self.faceRight, False)
@@ -372,8 +343,6 @@ class modelo_cubo:
         self.faceBack = faces[1]
         self.faceDown = faces[2]
         self.faceFront = faces[3]
-
-        self.tracking.append("r'" + ' ' + str(shift))
 
     def moveL(self, shift):
         if(shift == 0):
@@ -399,8 +368,6 @@ class modelo_cubo:
         self.faceDown = faces[2]
         self.faceBack = faces[3]
 
-        self.tracking.append("l" + ' ' + str(shift))
-
     def moveL_(self, shift):
         if(shift == 0):
             self.faceLeft = self.rotateFace(self.faceLeft, True)
@@ -425,8 +392,6 @@ class modelo_cubo:
         self.faceDown = faces[2]
         self.faceFront = faces[3]
 
-        self.tracking.append("l'" + ' ' + str(shift))
-
     def c_pos(self, i, j):
         return self.size * i + j
 
@@ -445,7 +410,6 @@ class modelo_cubo:
             j3 = posj
 
             if posi == posj and posi < (self.size - 1)/2:
-                print("# cantos")
                 i1 = self.size - i0 - 1
                 j1 = j0
                 i2 = i1
@@ -453,7 +417,6 @@ class modelo_cubo:
                 i3 = self.size - i2 - 1
                 j3 = j2
             elif posi < posj and posi < self.size - posj - 1:
-                print("# arestas")
                 i1 = self.size - j0 - 1
                 j1 = i0
                 i2 = self.size - j1 - 1
@@ -476,58 +439,7 @@ class modelo_cubo:
 
         return face            
 
-    # def rotateFace(self, face, invert):
-    #     if invert == False:
-    #         # rotaciona cantos
-    #         aux = face[0]
-    #         face[0] = face[self.size - 1]
-    #         face[self.size - 1] = face[self.size*self.size - 1]
-    #         face[self.size*self.size - 1] = face[self.size*self.size - self.size]
-    #         face[self.size*self.size - self.size] = aux
-
-    #         # rotaciona arestas
-    #         for i in range(self.size - 2):
-    #             j = (self.size - 3) - i  # oposto
-    #             aux = face[i + 1]
-    #             face[i + 1] = face[(i + 2) * (self.size) - 1]
-    #             face[(i + 2) * (self.size) -
-    #                  1] = face[self.size*self.size - 2 - j]
-    #             face[self.size*self.size - 2 - j] = face[self.size * (j + 1)]
-    #             face[self.size * (j + 1)] = aux
-    #     else:
-    #         aux = face[0]
-    #         face[0] = face[self.size*self.size - self.size]
-    #         face[self.size*self.size - self.size] = face[self.size*self.size - 1]
-    #         face[self.size*self.size - 1] = face[self.size - 1]
-    #         face[self.size - 1] = aux
-
-    #         for i in range(self.size - 2):
-    #             aux = face[i + 1]
-    #             face[i + 1] = face[self.size * (i + 1)]
-    #             face[self.size * (i + 1)] = face[self.size*self.size - 2 - i]
-    #             face[self.size*self.size - 2 -
-    #                  i] = face[(i + 2) * (self.size) - 1]
-    #             # face[(i + 2) * (self.size - 1) + 1] = aux
-    #             face[(i + 2) * (self.size) - 1] = aux
-
-    #     return face
-
-    def rotateSides(self, faces, face_positions):
-        for i in range(self.size):
-            pos0 = face_positions[0][i]
-            pos1 = face_positions[1][i]
-            pos2 = face_positions[2][i]
-            pos3 = face_positions[3][i]
-
-            aux = faces[0][pos0]
-            faces[0][pos0] = faces[1][pos1]
-            faces[1][pos1] = faces[2][pos2]
-            faces[2][pos2] = faces[3][pos3]
-            faces[3][pos3] = aux
-
-        return faces
-
-    def rotateSidesInverting(self, faces, face_positions, invert_faces):
+    def rotateSides(self, faces, face_positions, invert_faces = []):
         for i in range(self.size):
             pos0 = face_positions[0][i]
             pos1 = face_positions[1][i]

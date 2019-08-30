@@ -1,54 +1,28 @@
 
 from modelo_cubo import modelo_cubo
 
+
 class controle:
     def __init__(self):
         self.tracks = {}
         self.states = {}
         self.last_moves = []
         self.current_track = []
-        self.cubo = modelo_cubo(3) 
+        self.current_track_pos = 0
+        self.cubo = modelo_cubo(3)
+        self.message = ''
 
     def run_command(self, command):
+        if command[0] == "empty" and len(self.current_track) > 0:
+            command = ['step']
+        elif command[0] == "-" and len(self.current_track) > 0:
+            command = ['step', '-']
+
         # move o cubo
         if command[0] == "move":
-            shifts = []
-            
-            if len(command) < 3:
-                shifts.append(0)
-            elif command[2].__contains__('-') or command[2].__contains__('+'):
-                for i in range(len(command[2])):
-                    if command[2][i] == '+':
-                        shifts.append(i)
-            else:
-                shifts.append(int(command[2]))
+            self.last_moves.append(command)
+            self.move_cubo(command)
 
-            for shift in shifts:
-                if command[1] == "u":
-                    self.cubo.moveU(shift)
-                elif command[1] == "u'":
-                    self.cubo.moveU_(shift)
-                elif command[1] == "d":
-                    self.cubo.moveD(shift)
-                elif command[1] == "d'":
-                    self.cubo.moveD_(shift)
-                elif command[1] == "f":
-                    self.cubo.moveF(shift)
-                elif command[1] == "f'":
-                    self.cubo.moveF_(shift)
-                elif command[1] == "b":
-                    self.cubo.moveB(shift)
-                elif command[1] == "b'":
-                    self.cubo.moveB_(shift)
-                elif command[1] == "r":
-                    self.cubo.moveR(shift)
-                elif command[1] == "r'":
-                    self.cubo.moveR_(shift)
-                elif command[1] == "l":
-                    self.cubo.moveL(shift)
-                elif command[1] == "l'":
-                    self.cubo.moveL_(shift)
-            
         elif command[0] == "spin":
             for shift in range(0, self.cubo.size):
                 if command[1] == "left":
@@ -79,34 +53,191 @@ class controle:
             except:
                 debug = False
 
+            self.last_moves = []
             self.cubo.restart(size, debug)
+
+            self.message = "Restarting cube with size: " + str(size)
 
         # reinicia o tracking / salva o tracking atual
         elif command[0] == "track":
-            pass
+            if len(command) > 1:
+                self.last_moves.append(['end'])
+                self.last_moves.insert(0, ['start'])
+                self.tracks[command[1]] = self.last_moves
+
+                self.message = "Saved track: " + command[1]
+            else:
+                self.message = "Missing arguments: [name]"
+
+            self.last_moves = []
+
         # salva o estado atual
         elif command[0] == "state":
-            pass
+            if len(command) > 1:
+                state_name = command[1]
+                self.states[state_name] = [self.cubo.faceUp, self.cubo.faceDown,
+                                           self.cubo.faceFront, self.cubo.faceBack,
+                                           self.cubo.faceRight, self.cubo.faceLeft]
+
+                self.message = "Saved state: " + command[1]
+            else:
+                self.message = "Missing arguments: [name]"
+
         # mostra tracks e states
         elif command[0] == "show":
-            pass
+            show_tracks = True
+            show_states = True
+
+            if len(command) > 1:
+                if command[1] == "tracks":
+                    show_states = False
+                elif command[1] == "states":
+                    show_tracks = False
+
+            i = 1
+            if show_states:
+                self.message += "States:\n"
+                for name in self.states:
+                    self.message += "  " + str(i) + ". " + name + "\n"
+                    i += 1
+
+            i = 1
+            if show_tracks:
+                self.message += "Tracks:\n"
+                for name in self.tracks:
+                    self.message += "  " + str(i) + ". " + name + "\n"
+                    i += 1
+
         # carrega track ou state
         elif command[0] == "load":
-            pass
+            if len(command) == 1:
+                self.message = "Missing arguments: [track/state] [name]"
+            elif len(command) == 2:
+                self.message = "Missing arguments: [name]"
+            elif command[1] == "track":
+                try:
+                    self.current_track = self.tracks[command[2]]
+                    self.message = "Loaded track " + command[2]
+                    self.current_track_pos = -1
+                except:
+                    self.message = "Couldn't load track " + command[2]
+            elif command[1] == "state":
+                try:
+                    state = self.states[command[2]]
+                    self.cubo.setState(state)
+                    self.message = "Loaded state " + command[2]
+                except:
+                    self.message = "Couldn't load state " + command[2]
+
         # roda 1 passo da track atual
         elif command[0] == "step":
-            pass
+            if len(self.current_track) == 0:
+                self.message = "No track loaded"
+                return
+
+            if self.current_track_pos == -1:
+                self.current_track_pos += 1
+                return
+
+            if len(command) > 1 and command[1] == "-":
+                self.move_cubo_inverted(self.current_track[self.current_track_pos])
+                if self.current_track_pos > 0:
+                    self.current_track_pos -= 1
+            else:
+                if self.current_track_pos < len(self.current_track) - 1:
+                    self.current_track_pos += 1
+                    self.move_cubo(self.current_track[self.current_track_pos])
+
         # roda a track atual completa
         elif command[0] == "run":
-            pass
+            try:
+                track = self.tracks[command[1]]
+                for move in track:
+                    self.move_cubo(move)
+            except:
+                self.message = "Couldn't load track"
+        # else:
+        #     self.message = "Invalid command"
 
     def print(self):
-        self.cubo.printFaces()
-        print("")
-        print("last moves: " + str(self.last_moves))
-        print("current track: " + str(self.current_track))
+        if self.message == '':
+            self.cubo.printFaces()
+            print("")
+            # print("last moves: " + str(self.last_moves))
+            if len(self.current_track) > 0:
+                ctrack = "current track: \n   "
+                for i in range(len(self.current_track)):
+                    selected = (i == self.current_track_pos)
+                    move = self.current_track[i]
 
-    def move(self, command):
-        pass
+                    for s in move:
+                        if not s == 'move':
+                            if selected:
+                                ctrack += "\033[0;30;47m" + s + "\033[0;37;40m"
+                            else:
+                                ctrack += s
 
-    
+                    ctrack += " "
+
+                print(ctrack)
+
+        else:
+            print("")
+            print(self.message)
+            self.message = ''
+
+    def move_cubo_inverted(self, command):
+        if command[0] == 'end' or command[0] == 'start':
+            return
+
+        new_command = command.copy()
+        
+        if command[1].__contains__("'"):
+            new_command[1].replace("'", "")
+        else:
+            new_command[1] += "'"
+
+        self.move_cubo(new_command)
+
+    def move_cubo(self, command):
+        if command[0] == 'end' or command[0] == 'start':
+            return
+
+        shifts = []
+
+        if len(command) < 3:
+            shifts.append(0)
+        elif command[2].__contains__('-') or command[2].__contains__('+'):
+            for i in range(len(command[2])):
+                if command[2][i] == '+':
+                    shifts.append(i)
+        else:
+            shifts.append(int(command[2]))
+
+        for shift in shifts:
+            if command[1] == "u":
+                self.cubo.moveU(shift)
+            elif command[1] == "u'":
+                self.cubo.moveU_(shift)
+            elif command[1] == "d":
+                self.cubo.moveD(shift)
+            elif command[1] == "d'":
+                self.cubo.moveD_(shift)
+            elif command[1] == "f":
+                self.cubo.moveF(shift)
+            elif command[1] == "f'":
+                self.cubo.moveF_(shift)
+            elif command[1] == "b":
+                self.cubo.moveB(shift)
+            elif command[1] == "b'":
+                self.cubo.moveB_(shift)
+            elif command[1] == "r":
+                self.cubo.moveR(shift)
+            elif command[1] == "r'":
+                self.cubo.moveR_(shift)
+            elif command[1] == "l":
+                self.cubo.moveL(shift)
+            elif command[1] == "l'":
+                self.cubo.moveL_(shift)
+            else:
+                self.last_moves.pop()
