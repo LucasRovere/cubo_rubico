@@ -20,8 +20,11 @@ class controle:
 
         # move o cubo
         if command[0] == "move":
-            self.last_moves.append(command)
-            self.move_cubo(command)
+            try:
+                self.move_cubo(command)
+                self.last_moves.append(command)
+            except:
+                self.message = "Error on move"
 
         elif command[0] == "spin":
             for shift in range(0, self.cubo.size):
@@ -151,16 +154,29 @@ class controle:
         # roda a track atual completa
         elif command[0] == "run":
             try:
-                track = self.tracks[command[1]]
+                invert = False
+                track = self.tracks[command[1]].copy()
+
+                if len(command) > 2:
+                    if command[2] == "-":
+                        invert = True
+                        track.reverse()
+
                 for move in track:
-                    self.move_cubo(move)
+                    if not invert:
+                        self.move_cubo(move)
+                    else:
+                        self.move_cubo_inverted(move)
             except:
                 self.message = "Couldn't load track"
-        # else:
-        #     self.message = "Invalid command"
+
+        elif command[0] == "close":
+            self.current_track = []
+        elif command[0] != "empty":
+            self.message = "Unknown command"
 
     def print(self):
-        if self.message == '':
+        if self.message == '' or self.message == "Unknown command":
             self.cubo.printFaces()
             print("")
             # print("last moves: " + str(self.last_moves))
@@ -181,7 +197,7 @@ class controle:
 
                 print(ctrack)
 
-        else:
+        if not self.message == '':
             print("")
             print(self.message)
             self.message = ''
