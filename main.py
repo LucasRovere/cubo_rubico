@@ -1,5 +1,5 @@
 
-from controle_cubo import controle
+from controle_cubo import controle_cubo
 
 def getCommand(text):
     splitted = text.split(" ")
@@ -11,7 +11,7 @@ def getCommand(text):
     
     return splitted
 
-ctrl = controle()
+ctrl = controle_cubo()
 
 while True:
     ctrl.print()

@@ -1,4 +1,6 @@
 
+import math
+
 class modelo_cubo:
     def __init__(self, size):
         self.size = size
@@ -25,6 +27,8 @@ class modelo_cubo:
         self.faceBack = state[3]
         self.faceRight = state[4]
         self.faceLeft = state[5]
+
+        self.size = int(math.sqrt(len(self.faceUp)))
 
     def restart(self, size, debug):
         self.size = int(size)

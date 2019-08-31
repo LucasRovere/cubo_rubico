@@ -1,8 +1,8 @@
 
 from modelo_cubo import modelo_cubo
+from track_operator import track_operator
 
-
-class controle:
+class controle_cubo:
     def __init__(self):
         self.tracks = {}
         self.states = {}
@@ -11,6 +11,7 @@ class controle:
         self.current_track_pos = 0
         self.cubo = modelo_cubo(3)
         self.message = ''
+        self.track_op = track_operator()
 
     def run_command(self, command):
         if command[0] == "empty" and len(self.current_track) > 0:
@@ -172,13 +173,37 @@ class controle:
 
         elif command[0] == "close":
             self.current_track = []
+
         elif command[0] == "undo":
             if len(self.last_moves) == 0:
                 self.message = "No moves to undo"
                 return
-                
+
             move = self.last_moves.pop()
             self.move_cubo_inverted(move)
+
+        elif command[0] == "trackop" or command[0] == "top":
+            operation = ''
+            track = ''
+
+            try:
+                operation = command[1]
+            except:
+                self.message = "Missing argument [operation]"
+                return
+
+            try:
+                track = self.tracks[command[2]]
+            except:
+                if len(self.current_track) > 0:
+                    track = self.current_track
+                else:
+                    self.message = "Couldn't load track"
+                    return
+            
+            self.current_track = self.track_op.run(operation, track)
+            self.current_track_pos = -1
+
         elif command[0] != "empty":
             self.message = "Unknown command"
 

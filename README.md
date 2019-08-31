@@ -33,10 +33,18 @@
         > "d-" => gira a camada acima da face inferior (sem girar a face)
 
     Comandos:
-        'restart': reinicia o cubo ao estado original e apaga o tracking
+        'restart [size]': reinicia o cubo com tamanho 'size' e apaga o tracking
+
         'track': reinicia o tracking mantendo o estado do cubo e mostra as tracks salvas
-        'track nome': salva o tracking atual com usando a chave 'nome' como referencia e mostra as tracks salvas
-        'run nome': inicia a track salva com chave 'nome'
+
+        'track [nome]': salva o tracking atual com usando a chave 'nome'
+        'state [nome]': salva o estado atual do cubo com a chave 'nome'
+
+        'load track [nome]': inicia a track salva com chave 'nome'
+        'load state [nome]': atualiza o cubo com o estado 'nome'
+        'run [nome]': inicia a track salva com chave 'nome'
+        'run [nome] -': inicia a track salva com chave 'nome'
+        'move '
 
     Comandos track:
         'r' => desfaz o último movimento
