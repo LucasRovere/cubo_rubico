@@ -1,6 +1,6 @@
 
 class track_operator:
-    def run(self, operation, track):
+    def run(self, operation, track, arg0 = ''):
         if operation == 'remove-oposites' or operation == 'ro':
             return self.remove_oposites(track)
         else:

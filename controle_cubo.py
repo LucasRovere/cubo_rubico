@@ -1,6 +1,7 @@
 
 from modelo_cubo import modelo_cubo
 from track_operator import track_operator
+import os
 
 class controle_cubo:
     def __init__(self):
@@ -44,23 +45,7 @@ class controle_cubo:
 
         # reinicia o cubo com um tamanho escolhido
         elif command[0] == "restart":
-            size = self.cubo.size
-            debug = False
-
-            try:
-                size = int(command[1])
-            except:
-                pass
-
-            try:
-                debug = (command[2] == "debug")
-            except:
-                debug = False
-
-            self.last_moves = []
-            self.cubo.restart(size, debug)
-
-            self.message = "Restarting cube with size: " + str(size)
+            self.restart(command)
 
         # reinicia o tracking / salva o tracking atual
         elif command[0] == "track":
@@ -144,7 +129,8 @@ class controle_cubo:
                 return
 
             if len(command) > 1 and command[1] == "-":
-                self.move_cubo_inverted(self.current_track[self.current_track_pos])
+                self.move_cubo_inverted(
+                    self.current_track[self.current_track_pos])
                 if self.current_track_pos > 0:
                     self.current_track_pos -= 1
             else:
@@ -154,23 +140,7 @@ class controle_cubo:
 
         # roda a track atual completa
         elif command[0] == "run":
-            try:
-                invert = False
-                track = self.tracks[command[1]].copy()
-
-                if len(command) > 2:
-                    if command[2] == "-":
-                        invert = True
-                        track.reverse()
-
-                for move in track:
-                    if not invert:
-                        self.move_cubo(move)
-                    else:
-                        self.move_cubo_inverted(move)
-            except:
-                self.message = "Couldn't load track"
-
+            self.run(command)
         elif command[0] == "close":
             self.current_track = []
 
@@ -200,7 +170,7 @@ class controle_cubo:
                 else:
                     self.message = "Couldn't load track"
                     return
-            
+
             self.current_track = self.track_op.run(operation, track)
             self.current_track_pos = -1
 
@@ -208,6 +178,7 @@ class controle_cubo:
             self.message = "Unknown command"
 
     def print(self):
+        os.system('clear')
         if self.message == '' or self.message == "Unknown command":
             self.cubo.printFaces()
             print("")
@@ -233,6 +204,55 @@ class controle_cubo:
             print("")
             print(self.message)
             self.message = ''
+
+    def restart(self, command, size_param = 0):
+        size = self.cubo.size
+        debug = False
+
+        if size_param == 0:
+            try:
+                size = int(command[1])
+            except:
+                pass
+
+            try:
+                debug = (command[2] == "debug")
+            except:
+                debug = False
+        else:
+            size = size_param
+            debug = False
+
+        self.last_moves = []
+        self.cubo.restart(size, debug)
+        self.message = "Restarting cube with size: " + str(size)
+
+    def run(self, command, is_track = False):
+        track = []
+        if not is_track:
+            try:
+                invert = False
+                track = self.tracks[command[1]].copy()
+                if len(command) > 2:
+                    if command[2] == "-":
+                        invert = True
+                        track.reverse()
+            except:
+                self.message = "Couldn't load track"
+                return
+        else:
+            track = command
+
+        for move in track:
+            if not invert:
+                self.move_cubo(move)
+            else:
+                self.move_cubo_inverted(move)
+        
+    def get_state(self):
+        return [self.cubo.faceUp, self.cubo.faceDown,
+                self.cubo.faceFront, self.cubo.faceBack,
+                self.cubo.faceRight, self.cubo.faceLeft]
 
     def move_cubo_inverted(self, command):
         if command[0] == 'end' or command[0] == 'start':

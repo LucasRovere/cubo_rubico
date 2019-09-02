@@ -24,14 +24,6 @@
     "l" => Face lateral esquerda para cima
     "l'" => Face lateral esquerda para baixo
 
-    Camadas internas:
-        Cada traço (-) depois do comando gira uma camada mais para dentro do cubo. Ex:
-        > "u" => gira a face superior
-        > "u-" => gira a camada abaixo da face superior (sem girar a face)
-
-        > "d" => gira a face inferior
-        > "d-" => gira a camada acima da face inferior (sem girar a face)
-
     Comandos:
         'restart [size]': reinicia o cubo com tamanho 'size' e apaga o tracking
 
@@ -42,11 +34,37 @@
 
         'load track [nome]': inicia a track salva com chave 'nome'
         'load state [nome]': atualiza o cubo com o estado 'nome'
-        'run [nome]': inicia a track salva com chave 'nome'
-        'run [nome] -': inicia a track salva com chave 'nome'
-        'move '
 
-    Comandos track:
-        'r' => desfaz o último movimento
+        'run [nome]': Executa todos os movimentos da track salva com chave 'nome'
+        'run [nome] -': Executa o inverso da track salva com chave 'nome'
+        
+        'move [face] [camadas interiores]': Faz o movimento
+
+        'undo': desfaz o último movimento
+
+        'spin [axis]': gira o cubo inteiro no eixo escolhido
+
+    Comandos move:
+        'move' => pode ser omitido
+        'face => Descrito abaixo
         'q' => sai do modo run
         '' => input vazio (ou comando inexistente) roda o próximo movimento
+
+    Faces move:
+        u => Face superior sentido horário
+        u' => Face superior sentido anti horário
+
+        d => Face inferior sentido horário
+        d' => Face inferior sentido anti horário
+
+        f => Face dianteira sentido horário
+        f' => Face dianteira sentido anti horário
+
+        b => Face traseira sentido horário
+        b' => Face traseira sentido anti horário
+
+        r => Face direita sentido horário
+        r' => Face direita sentido anti horário
+
+        l => Face esquerda sentido horário
+        l' => Face esquerda sentido anti horário
